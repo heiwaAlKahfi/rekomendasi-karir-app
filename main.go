@@ -2,207 +2,309 @@ package main
 
 import "fmt"
 
-const NMinat int = 15
-const NKeahlian int = 17
-const MaxPilihan int = 100
-const MaxRekomendasi int = 100
-
-var minatList = []string{
-	"Teknologi",
-	"Seni",
-	"Bisnis",
-	"Pendidikan",
-	"Kesehatan",
-	"Hukum",
-	"Lingkungan",
-	"Transportasi",
-	"Sosial",
-	"Ekonomi",
-	"Pariwisata",
-	"Pangan",
-	"Media dan Jurnalistik",
-	"Olahraga",
-	"Pertanian",
+type User struct {
+	Minat        [100]string
+	Keahlian     [100]string
+	MinatCount   int
+	KeahlianCount int
 }
 
-var keahlianList = []string{
-	"Pemrograman",
-	"Desain Grafis",
-	"Komunikasi",
-	"Manajemen",
-	"Analisis Data",
-	"Penulisan",
-	"Public Speaking",
-	"Analisis Hukum",
-	"Mekanik",
-	"Statistik",
-	"Negosiasi",
-	"Observasi",
-	"Fotografi",
-	"Video Editing",
-	"Kepemimpinan",
-	"Bahasa Asing",
-	"Kuliner",
+type Karir struct {
+	NamaPekerjaan         string
+	Industri     string
+	MatchScore   int
+	RataGaji int
 }
 
-
-var rekomendasiPekerjaan = map[string]map[string]string{
-	"Teknologi": {
-		"Pemrograman":    "Software Engineer",
-		"Analisis Data":  "Data Scientist",
-		"Statistik":      "AI Researcher",
-		"Manajemen":      "IT Project Manager",
-	},
-	"Seni": {
-		"Desain Grafis":  "Graphic Designer",
-		"Penulisan":      "Creative Writer",
-		"Video Editing":  "Video Editor",
-		"Fotografi":      "Fotografer Artistik",
-	},
-	"Bisnis": {
-		"Manajemen":      "Business Manager",
-		"Analisis Data":  "Market Analyst",
-		"Negosiasi":      "Sales Executive",
-		"Kepemimpinan":   "Startup Founder",
-	},
-	"Pendidikan": {
-		"Public Speaking": "Dosen",
-		"Komunikasi":      "Guru",
-		"Penulisan":       "Penulis Buku Edukasi",
-		"Bahasa Asing":    "Guru Bahasa Asing",
-	},
-	"Kesehatan": {
-		"Observasi":      "Analis Medis",
-		"Manajemen":      "Manajer Rumah Sakit",
-	},
-	"Hukum": {
-		"Analisis Hukum": "Pengacara",
-		"Public Speaking": "Jaksa",
-	},
-	"Lingkungan": {
-		"Observasi":      "Peneliti Lingkungan",
-		"Statistik":      "Analis Dampak Lingkungan",
-	},
-	"Transportasi": {
-		"Mekanik":        "Teknisi Otomotif",
-		"Manajemen":      "Manajer Logistik",
-	},
-	"Sosial": {
-		"Komunikasi":     "Pekerja Sosial",
-		"Public Speaking": "Motivator",
-	},
-	"Ekonomi": {
-		"Analisis Data":  "Ekonom",
-		"Statistik":      "Peneliti Ekonomi",
-	},
-	"Pariwisata": {
-		"Bahasa Asing":   "Pemandu Wisata",
-		"Komunikasi":     "Travel Consultant",
-	},
-	"Pangan": {
-		"Kuliner":        "Chef",
-		"Manajemen":      "Food Service Manager",
-	},
-	"Media dan Jurnalistik": {
-		"Penulisan":      "Jurnalis",
-		"Video Editing":  "Editor Berita",
-		"Fotografi":      "Jurnalis Foto",
-	},
-	"Olahraga": {
-		"Kepemimpinan":   "Pelatih Tim",
-		"Public Speaking": "Konsultan Kebugaran",
-	},
-	"Pertanian": {
-		"Observasi":      "Agronom",
-		"Manajemen":      "Manajer Perkebunan",
-	},
-}
-
-// Menampikan daftar pilihan berdasarkan parameter yang diberikan (minat atau keahlian).
-func tampilkanDaftar(judul string, list []string) {
-	fmt.Println("\nPilih " + judul + " (masukkan angka, pisahkan dengan spasi):")
-	for i := 0; i < NMinat && judul == "Minat"; i++ {
-		fmt.Printf("%d. %s\n", i+1, list[i])
-	}
-	for i := 0; i < NKeahlian && judul == "Keahlian"; i++ {
-		fmt.Printf("%d. %s\n", i+1, list[i])
-	}
-}
-
-// Mengembalikan nilai array integer dari indeks yang dipilih dan jumlah pilihan yang valid.
-// Mengabaikan input yang tidak valid dan menghentikan input jika 0 dimasukkan.
-// Jika tidak ada input yang valid, mengembalikan array kosong.
-func inputPilihan(placeholder string, jumlah int) ([MaxPilihan]int, int) {
-	var temp int
-	var hasil [MaxPilihan]int
-	idx := 0
-
-	fmt.Println(placeholder)
-
-	for {
-		n, err := fmt.Scan(&temp)
-		if n == 0 || err != nil || temp == 0 {
-			break
-		}
-		if temp >= 1 && temp <= jumlah {
-			hasil[idx] = temp - 1
-			idx++
-			if idx >= MaxPilihan {
-				break
-			}
-		}
-	}
-	return hasil, idx
-}
-
-// Mengembalikan nilai array string pekerjaan berdasarkan minat dan keahlian yang dipilih dan nilai jumlahHasil dari total rekomendasi pekerjaaan yang cocok.
-// Membandingkan array minat dan keahlian yang dipilih dengan rekomendasi pekerjaan.
-// Jika tidak ada kombinasi yang cocok, mengembalikan array kosong.
-func cariPekerjaan(minatIdxs [MaxPilihan]int, jmMinat int, keahlianIdxs [MaxPilihan]int, jmKeahlian int) ([MaxRekomendasi]string, int) {
-	var hasil [MaxRekomendasi]string
-	jmHasil := 0
-	sudah := map[string]bool{}
-
-	for i := 0; i < jmMinat; i++ {
-		for j := 0; j < jmKeahlian; j++ {
-			minat := minatList[minatIdxs[i]]
-			keahlian := keahlianList[keahlianIdxs[j]]
-			if pekerjaan, ok := rekomendasiPekerjaan[minat][keahlian]; ok && !sudah[pekerjaan] {
-				hasil[jmHasil] = pekerjaan
-				sudah[pekerjaan] = true
-				jmHasil++
-				if jmHasil >= MaxRekomendasi {
-					break
-				}
-			}
-		}
-	}
-	return hasil, jmHasil
+var user User
+var listKarir = []Karir{
+	{"Software Engineer", "Teknologi", 0, 80000},
+	{"Data Scientist", "Teknologi", 0, 85000},
+	{"Graphic Designer", "Design", 0, 50000},
+	{"Manager Akuntasi", "Management", 0, 70000},
+	{"Marketing Specialist", "Bisnis", 0, 60000},
 }
 
 func main() {
-	var nama string
-	fmt.Print("Masukkan nama Anda: ")
-	fmt.Scanln(&nama)
-
-	tampilkanDaftar("Minat", minatList)
-	fmt.Println("")
-	minatIdxs, jmMinat := inputPilihan("Pilih minat anda (ketik 0 untuk berhenti)", NMinat)
-
-	tampilkanDaftar("Keahlian", keahlianList)
-	fmt.Println("")
-	keahlianIdxs, jmKeahlian := inputPilihan("Pilih keahlian anda (ketik 0 untuk berhenti)", NKeahlian)
-
-	rekomendasi, jumlahRek := cariPekerjaan(minatIdxs, jmMinat, keahlianIdxs, jmKeahlian)
-
-	fmt.Println("\n====================================")
-	fmt.Printf("Halo %s,\nberdasarkan pilihan Anda, berikut rekomendasi karir yang cocok:\n", nama)
-	if jumlahRek == 0 {
-		fmt.Println("Maaf, belum ada rekomendasi untuk kombinasi tersebut.")
-	} else {
-		for i := 0; i < jumlahRek; i++ {
-			fmt.Printf("- %s\n", rekomendasi[i])
+	var choice int
+	for {
+		fmt.Println("\nCareer Path Recommender")
+		fmt.Println("1. Tambah minat/keahlian")
+		fmt.Println("2. Ubah minat/keahlian")
+		fmt.Println("3. Hapus minat/keahlian")
+		fmt.Println("4. Rekomendasi jalur karier")
+		fmt.Println("5. Cari jalur karier")
+		fmt.Println("6. Urutkan jalur karier")
+		fmt.Println("7. Tampilkan statistik")
+		fmt.Println("8. Keluar")
+		fmt.Print("Pilihan: ")
+		fmt.Scan(&choice)
+		switch choice {
+		case 1:
+			tambahMinatKeahlian()
+		case 2:
+			editInterestOrSkill()
+		case 3:
+			deleteInterestOrSkill()
+		case 4:
+			recommendCareers()
+		case 5:
+			searchKarir()
+		case 6:
+			sortKarir()
+		case 7:
+			tampilkanStatistik()
+		case 8:
+			return
+		default:
+			fmt.Println("Pilihan tidak valid")
 		}
 	}
-	fmt.Println("====================================")
+}
+
+// Prodecure untuk menerima input dari pengguna lalu menambahkannya ke array minat atau keahlian.
+func tambahMinatKeahlian() {
+	var t, val string
+	fmt.Print("Tambah (minat/keahlian): ")
+	fmt.Scan(&t)
+	fmt.Print("Masukkan nilai: ")
+	fmt.Scan(&val)
+	if t == "minat" {
+		user.Minat[user.MinatCount] = val
+		user.MinatCount++
+	} else if t == "keahlian" {
+		user.Keahlian[user.KeahlianCount] = val
+		user.KeahlianCount++
+	} else {
+		fmt.Println("Tipe tidak valid")
+	}
+}
+
+// Prodecure untuk mengubah nilai minat atau keahlian yang sudah ada.
+// Menggunakan fungsi replaceInArray untuk mengganti nilai lama dengan nilai baru.
+func editInterestOrSkill() {
+	var t, oldVal, newVal string
+	fmt.Print("Ubah (minat/keahlian): ")
+	fmt.Scan(&t)
+	fmt.Print("Nilai lama: ")
+	fmt.Scan(&oldVal)
+	fmt.Print("Nilai baru: ")
+	fmt.Scan(&newVal)
+	if t == "minat" {
+		replaceInArray(&user.Minat, user.MinatCount, oldVal, newVal)
+	} else if t == "keahlian" {
+		replaceInArray(&user.Keahlian, user.KeahlianCount, oldVal, newVal)
+	} else {
+		fmt.Println("Tipe tidak valid")
+	}
+}
+
+// Prodecure untuk menghapus nilai minat atau keahlian yang sudah ada.
+// Menggunakan fungsi deleteFromArray untuk menghapus nilai dari array.
+func deleteInterestOrSkill() {
+	var t, val string
+	fmt.Print("Hapus (minat/keahlian): ")
+	fmt.Scan(&t)
+	fmt.Print("Masukkan nilai: ")
+	fmt.Scan(&val)
+	if t == "minat" {
+		deleteFromArray(&user.Minat, &user.MinatCount, val)
+	} else if t == "keahlian" {
+		deleteFromArray(&user.Keahlian, &user.KeahlianCount, val)
+	} else {
+		fmt.Println("Tipe tidak valid")
+	}
+}
+
+// Fungsi untuk mengganti nilai dalam array.
+// Menerima pointer ke array, jumlah elemen yang valid, nilai lama, dan nilai baru.
+func replaceInArray(arr *[100]string, count int, oldVal, newVal string) {
+	for i := 0; i < count; i++ {
+		if (*arr)[i] == oldVal {
+			(*arr)[i] = newVal
+			return
+		}
+	}
+	fmt.Println("Nilai tidak ditemukan")
+}
+
+// Fungsi untuk menghapus nilai dari array.
+// Menerima pointer ke array, pointer ke jumlah elemen yang valid, dan nilai yang akan dihapus.
+func deleteFromArray(arr *[100]string, count *int, val string) {
+	for i := 0; i < *count; i++ {
+		if (*arr)[i] == val {
+			for j := i; j < *count-1; j++ {
+				(*arr)[j] = (*arr)[j+1]
+			}
+			*count--
+			return
+		}
+	}
+	fmt.Println("Nilai tidak ditemukan")
+}
+
+// Prodecure untuk merekomendasikan jalur karier berdasarkan minat dan keahlian pengguna.
+// Menghitung skor kecocokan untuk setiap jalur karier berdasarkan minat dan keahlian.
+func recommendCareers() {
+	for i := range listKarir {
+		listKarir[i].MatchScore = 0
+		for j := 0; j < user.MinatCount; j++ {
+			if periksaString(listKarir[i].NamaPekerjaan, user.Minat[j]) || periksaString(listKarir[i].Industri, user.Minat[j]) {
+				listKarir[i].MatchScore += 10
+			}
+		}
+		for j := 0; j < user.KeahlianCount; j++ {
+			if periksaString(listKarir[i].NamaPekerjaan, user.Keahlian[j]) || periksaString(listKarir[i].Industri, user.Keahlian[j]) {
+				listKarir[i].MatchScore += 10
+			}
+		}
+	}
+	for _, c := range listKarir {
+		fmt.Printf("%s (%s) - Match: %d\n", c.NamaPekerjaan, c.Industri, c.MatchScore)
+	}
+}
+
+// Fungsi untuk memeriksa apakah string str dimulai dengan substring substr.
+// Mengembalikan true jika str dimulai dengan substr, false jika tidak.
+func periksaString(str, substr string) bool {
+	return len(substr) > 0 && len(str) > 0 && (str == substr || (len(str) >= len(substr) && str[:len(substr)] == substr))
+}
+
+// Prodecure untuk mencari jalur karier berdasarkan nama atau kategori.
+// Menggunakan metode pencarian sequential atau binary tergantung pilihan pengguna.
+func searchKarir() {
+	var method, query string
+	fmt.Print("Metode (sequential/binary): ")
+	fmt.Scan(&method)
+	fmt.Print("Cari nama/kategori: ")
+	fmt.Scan(&query)
+	if method == "sequential" {
+		for _, c := range listKarir {
+			if c.NamaPekerjaan == query || c.Industri == query {
+				fmt.Printf("Ditemukan: %s (%s)\n", c.NamaPekerjaan, c.Industri)
+				return
+			}
+		}
+		fmt.Println("Tidak ditemukan")
+	} else if method == "binary" {
+		insertionSortByNama()
+		left, right := 0, 4
+		for left <= right {
+			mid := (left + right) / 2
+			if listKarir[mid].NamaPekerjaan == query {
+				fmt.Printf("Ditemukan: %s (%s)\n", listKarir[mid].NamaPekerjaan, listKarir[mid].Industri)
+				return
+			} else if listKarir[mid].NamaPekerjaan < query {
+				left = mid + 1
+			} else {
+				right = mid - 1
+			}
+		}
+		fmt.Println("Tidak ditemukan")
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan metode dan kriteria yang dipilih pengguna.
+func sortKarir() {
+	var method, criteria string
+	fmt.Print("Metode (selection/insertion): ")
+	fmt.Scan(&method)
+	fmt.Print("Kriteria (match/gaji): ")
+	fmt.Scan(&criteria)
+	if method == "selection" {
+		if criteria == "match" {
+			selectionSortByMatchScore()
+		} else if criteria == "gaji" {
+			selectionSortByGaji()
+		}
+	} else if method == "insertion" {
+		if criteria == "match" {
+			insertionSortByMatchScore()
+		} else if criteria == "gaji" {
+			insertionSortBySalary()
+		}
+	}
+	for _, c := range listKarir {
+		fmt.Printf("%s (%s) - Match: %d, Gaji: %d\n", c.NamaPekerjaan, c.Industri, c.MatchScore, c.RataGaji)
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma selection sort.
+func selectionSortByMatchScore() {
+	for i := 0; i < 5; i++ {
+		maxIdx := i
+		for j := i + 1; j < 5; j++ {
+			if listKarir[j].MatchScore > listKarir[maxIdx].MatchScore {
+				maxIdx = j
+			}
+		}
+		listKarir[i], listKarir[maxIdx] = listKarir[maxIdx], listKarir[i]
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma insertion sort.
+func insertionSortByMatchScore() {
+	for i := 1; i < 5; i++ {
+		key := listKarir[i]
+		j := i - 1
+		for j >= 0 && listKarir[j].MatchScore < key.MatchScore {
+			listKarir[j+1] = listKarir[j]
+			j--
+		}
+		listKarir[j+1] = key
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan gaji menggunakan algoritma selection sort.
+func selectionSortByGaji() {
+	for i := 0; i < 5; i++ {
+		maxIdx := i
+		for j := i + 1; j < 5; j++ {
+			if listKarir[j].RataGaji > listKarir[maxIdx].RataGaji {
+				maxIdx = j
+			}
+		}
+		listKarir[i], listKarir[maxIdx] = listKarir[maxIdx], listKarir[i]
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma insertion sort.
+func insertionSortBySalary() {
+	for i := 1; i < 5; i++ {
+		key := listKarir[i]
+		j := i - 1
+		for j >= 0 && listKarir[j].RataGaji < key.RataGaji {
+			listKarir[j+1] = listKarir[j]
+			j--
+		}
+		listKarir[j+1] = key
+	}
+}
+
+// Prodecure untuk mengurutkan jalur karier berdasarkan nama menggunakan algoritma insertion sort.
+func insertionSortByNama() {
+	for i := 1; i < 5; i++ {
+		key := listKarir[i]
+		j := i - 1
+		for j >= 0 && listKarir[j].NamaPekerjaan > key.NamaPekerjaan {
+			listKarir[j+1] = listKarir[j]
+			j--
+		}
+		listKarir[j+1] = key
+	}
+}
+
+func tampilkanStatistik() {
+	totalMatch := 0
+	for i := 0; i < 5; i++ {
+		totalMatch += listKarir[i].MatchScore
+	}
+	fmt.Println("Statistik kecocokan terhadap jalur karier:")
+	for i := 0; i < 5; i++ {
+		percent := 0.0
+		if totalMatch > 0 {
+			percent = float64(listKarir[i].MatchScore) / float64(totalMatch) * 100
+		}
+		fmt.Printf("%s: %.2f%%\n", listKarir[i].NamaPekerjaan, percent)
+	}
 }
