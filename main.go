@@ -43,11 +43,11 @@ func main() {
 		case 1:
 			tambahMinatKeahlian()
 		case 2:
-			editInterestOrSkill()
+			editMinatkehalian()
 		case 3:
-			deleteInterestOrSkill()
+			deleteMinatkehalian()
 		case 4:
-			recommendCareers()
+			rekomendasiKarir()
 		case 5:
 			searchKarir()
 		case 6:
@@ -82,7 +82,7 @@ func tambahMinatKeahlian() {
 
 // Prodecure untuk mengubah nilai minat atau keahlian yang sudah ada.
 // Menggunakan fungsi replaceInArray untuk mengganti nilai lama dengan nilai baru.
-func editInterestOrSkill() {
+func editMinatkehalian() {
 	var t, oldVal, newVal string
 	fmt.Print("Ubah (minat/keahlian): ")
 	fmt.Scan(&t)
@@ -101,7 +101,7 @@ func editInterestOrSkill() {
 
 // Prodecure untuk menghapus nilai minat atau keahlian yang sudah ada.
 // Menggunakan fungsi deleteFromArray untuk menghapus nilai dari array.
-func deleteInterestOrSkill() {
+func deleteMinatkehalian() {
 	var t, val string
 	fmt.Print("Hapus (minat/keahlian): ")
 	fmt.Scan(&t)
@@ -145,7 +145,7 @@ func deleteFromArray(arr *[100]string, count *int, val string) {
 
 // Prodecure untuk merekomendasikan jalur karier berdasarkan minat dan keahlian pengguna.
 // Menghitung skor kecocokan untuk setiap jalur karier berdasarkan minat dan keahlian.
-func recommendCareers() {
+func rekomendasiKarir() {
 	for i := range listKarir {
 		listKarir[i].MatchScore = 0
 		for j := 0; j < user.MinatCount; j++ {
