@@ -3,17 +3,17 @@ package main
 import "fmt"
 
 type User struct {
-	Minat        [100]string
-	Keahlian     [100]string
-	MinatCount   int
+	Minat         [100]string
+	Keahlian      [100]string
+	MinatCount    int
 	KeahlianCount int
 }
 
 type Karir struct {
-	NamaPekerjaan         string
-	Industri     string
-	MatchScore   int
-	RataGaji int
+	NamaPekerjaan string
+	Industri      string
+	MatchScore    int
+	RataGaji      int
 }
 
 var user User
@@ -23,6 +23,8 @@ var listKarir = []Karir{
 	{"Graphic Designer", "Design", 0, 50000},
 	{"Manager Akuntasi", "Management", 0, 70000},
 	{"Marketing Specialist", "Bisnis", 0, 60000},
+	{"Frontend", "Teknologi", 0, 80000},
+	{"Backend", "Teknologi", 0, 90000},
 }
 
 func main() {
@@ -36,7 +38,8 @@ func main() {
 		fmt.Println("5. Cari jalur karier")
 		fmt.Println("6. Urutkan jalur karier")
 		fmt.Println("7. Tampilkan statistik")
-		fmt.Println("8. Keluar")
+		fmt.Println("8. Lihat minat dan keahlian")
+		fmt.Println("9. Keluar")
 		fmt.Print("Pilihan: ")
 		fmt.Scan(&choice)
 		switch choice {
@@ -55,6 +58,8 @@ func main() {
 		case 7:
 			tampilkanStatistik()
 		case 8:
+			lihatMinatKeahlian()
+		case 9:
 			return
 		default:
 			fmt.Println("Pilihan tidak valid")
@@ -188,10 +193,10 @@ func searchKarir() {
 		fmt.Println("Tidak ditemukan")
 	} else if method == "binary" {
 		insertionSortByNama()
-		left, right := 0, 4
+		left, right := 0, 6
 		for left <= right {
 			mid := (left + right) / 2
-			if listKarir[mid].NamaPekerjaan == query {
+			if periksaString(listKarir[mid].NamaPekerjaan, query) || periksaString(listKarir[mid].Industri, query) {
 				fmt.Printf("Ditemukan: %s (%s)\n", listKarir[mid].NamaPekerjaan, listKarir[mid].Industri)
 				return
 			} else if listKarir[mid].NamaPekerjaan < query {
@@ -231,9 +236,9 @@ func sortKarir() {
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma selection sort.
 func selectionSortByMatchScore() {
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 7; i++ {
 		maxIdx := i
-		for j := i + 1; j < 5; j++ {
+		for j := i + 1; j < 7; j++ {
 			if listKarir[j].MatchScore > listKarir[maxIdx].MatchScore {
 				maxIdx = j
 			}
@@ -244,7 +249,7 @@ func selectionSortByMatchScore() {
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma insertion sort.
 func insertionSortByMatchScore() {
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 7; i++ {
 		key := listKarir[i]
 		j := i - 1
 		for j >= 0 && listKarir[j].MatchScore < key.MatchScore {
@@ -257,9 +262,9 @@ func insertionSortByMatchScore() {
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan gaji menggunakan algoritma selection sort.
 func selectionSortByGaji() {
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 7; i++ {
 		maxIdx := i
-		for j := i + 1; j < 5; j++ {
+		for j := i + 1; j < 7; j++ {
 			if listKarir[j].RataGaji > listKarir[maxIdx].RataGaji {
 				maxIdx = j
 			}
@@ -270,7 +275,7 @@ func selectionSortByGaji() {
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma insertion sort.
 func insertionSortBySalary() {
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 7; i++ {
 		key := listKarir[i]
 		j := i - 1
 		for j >= 0 && listKarir[j].RataGaji < key.RataGaji {
@@ -283,7 +288,7 @@ func insertionSortBySalary() {
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan nama menggunakan algoritma insertion sort.
 func insertionSortByNama() {
-	for i := 1; i < 5; i++ {
+	for i := 1; i < 7; i++ {
 		key := listKarir[i]
 		j := i - 1
 		for j >= 0 && listKarir[j].NamaPekerjaan > key.NamaPekerjaan {
@@ -296,15 +301,35 @@ func insertionSortByNama() {
 
 func tampilkanStatistik() {
 	totalMatch := 0
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 7; i++ {
 		totalMatch += listKarir[i].MatchScore
 	}
 	fmt.Println("Statistik kecocokan terhadap jalur karier:")
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 7; i++ {
 		percent := 0.0
 		if totalMatch > 0 {
 			percent = float64(listKarir[i].MatchScore) / float64(totalMatch) * 100
 		}
 		fmt.Printf("%s: %.2f%%\n", listKarir[i].NamaPekerjaan, percent)
+	}
+}
+
+func lihatMinatKeahlian() {
+	fmt.Println("Minat yang telah diinput:")
+	if user.MinatCount == 0 {
+		fmt.Println("- (belum ada minat)")
+	} else {
+		for i := 0; i < user.MinatCount; i++ {
+			fmt.Printf("- %s\n", user.Minat[i])
+		}
+	}
+
+	fmt.Println("\nKeahlian yang telah diinput:")
+	if user.KeahlianCount == 0 {
+		fmt.Println("- (belum ada keahlian)")
+	} else {
+		for i := 0; i < user.KeahlianCount; i++ {
+			fmt.Printf("- %s\n", user.Keahlian[i])
+		}
 	}
 }
