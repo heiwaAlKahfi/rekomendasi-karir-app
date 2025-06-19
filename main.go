@@ -226,7 +226,7 @@ func sortKarir() {
 		if criteria == "match" {
 			insertionSortByMatchScore()
 		} else if criteria == "gaji" {
-			insertionSortBySalary()
+			insertionSortByGaji()
 		}
 	}
 	for _, c := range listKarir {
@@ -274,7 +274,7 @@ func selectionSortByGaji() {
 }
 
 // Prodecure untuk mengurutkan jalur karier berdasarkan skor kecocokan menggunakan algoritma insertion sort.
-func insertionSortBySalary() {
+func insertionSortByGaji() {
 	for i := 1; i < 7; i++ {
 		key := listKarir[i]
 		j := i - 1
