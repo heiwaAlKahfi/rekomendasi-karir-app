@@ -299,6 +299,7 @@ func insertionSortByNama() {
 	}
 }
 
+// Procedure untuk menampilkan statistik karir yang cocok dengan minat dah keahlian pengguna
 func tampilkanStatistik() {
 	totalMatch := 0
 	for i := 0; i < 7; i++ {
@@ -314,6 +315,7 @@ func tampilkanStatistik() {
 	}
 }
 
+// Procedure untuk menampikan minat dan keahlian yang sudah diinputkan oleh pengguna
 func lihatMinatKeahlian() {
 	fmt.Println("Minat yang telah diinput:")
 	if user.MinatCount == 0 {
